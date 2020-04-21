@@ -1,0 +1,349 @@
+
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+
+.rectangle{
+  height: 125px;
+  width: 175px;
+  background-color: green;
+  text-align:center;
+  float:left;
+  margin :20px 30px;
+}
+
+.shape{
+  text-align:center;
+  background:
+    linear-gradient(65deg , transparent 50%,rgba(3,78,136,0.7) 50%) left no-repeat, 
+    linear-gradient(0deg , rgba(3,78,136,0.7),rgba(3,78,136,0.7)) 30px 0 no-repeat;
+  
+  background-size:30px 100%, 100% 100%;
+  width:200px;
+  height:60px;
+  line-height:60px;
+  padding:0 20px;
+  color:white;
+  margin:20px auto;
+  float:left;
+  position:relative;
+}
+
+.alarm{
+    
+    height: 125px;
+  width: 175px;
+  background-color: blue;
+  text-align:center;
+color:white;
+  float:left;
+  margin :20px 30px;
+animation-duration: 1200ms;
+    animation-name: blink;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+    -webkit-animation:blink 1200ms infinite; /* Safari and Chrome */
+}
+@keyframes blink {
+    from {
+        background-color: red;
+    }
+    to {
+        background-color: black;
+    }
+}
+@-webkit-keyframes blink {
+    from {
+        background-color: red;
+    }
+    to {
+        background-color: black;
+    }
+}
+
+
+.disconnect{
+    
+    height: 125px;
+  width: 175px;
+    background-color: gray;
+    text-align:center;
+  color:white;
+    float:left;
+    margin :20px 30px;
+  /* animation-duration: 1200ms;
+      animation-name: blink;
+      animation-iteration-count: infinite;
+      animation-direction: alternate;
+      -webkit-animation:blink 1200ms infinite; Safari and Chrome */
+  }
+
+
+</style>
+
+<style>
+
+
+  
+
+</style>
+</head>
+<body>
+
+<script>
+  var ws = new WebSocket('ws://localhost:40510');
+  var edc=0,rectifier=0,normal=0,alternate=0,trip=0,health;
+  var rectifierText,normalText,alternateText,tripText;
+  var alarmPlayOnce=0;
+  //  var edc,rectifier,normal,alternate,trip,health;
+
+  ws.onopen = function ()
+  {
+    console.log('websocket is connected ...')
+    ws.send('connected')
+  }
+
+  ws.onmessage = function (ev) 
+  {
+    console.log(ev.data);
+    if(ev.data.toString().split('#').length>3) 
+    {
+    /*  b=ev.data.toString().split("#");
+      edc=b[1];
+      rectifier=b[2];
+      normal=b[3];
+      alternate=b[4];
+      trip=b[5];
+
+      console.log(b[0]);
+      console.log('EDC=+='+b[1]);
+      console.log(b[2]);
+      console.log(b[3]);
+      console.log(b[4]);
+      console.log(b[5]);
+        console.log('Indexof %s',ev.data.toString().indexOf('#'));
+          var recvStatus=ev.data.toString();
+            //console.log('recvStatus is %s',recvStatus);
+            var indexLast=recvStatus.lastIndexOf('#');
+            var health=recvStatus.substr(indexLast+1,recvStatus.length);
+            indexFirst=recvStatus.indexOf('#');
+            var edc=recvStatus.substr(indexFirst+1,indexLast-indexFirst-1);
+            //console.log('index Last is %s LENGTH IS %s EDC IS %s and HEALTH IS %s',indexLast,recvStatus.length,edc,health);
+      */
+      
+      }
+        else
+        console.log("!!!!!!!!!!!NOT VALID MESSAGE RECIEVED!!!!!!!!!");
+        document.getElementById("demo").innerHTML = ev.data.toString();
+        update(ev.data.toString());
+        
+      
+        
+        // if(health=='NO')
+        //     {
+        //         console.log('ALARMING EDC IS %s',edc);
+        //         if(!(document.getElementById('edc'+edc).className == "alarm"))
+        //             {
+        //             console.log('!!!!CHANGINGTO ALARM!!!!!');
+        //             changeClassAlarm(edc.toString());
+        //             }
+                
+                
+        //     }
+        // else 
+        // if (health=="TERM")
+        // {
+        //         console.log('TERMINATED EDC IS %s',edc);
+        //         if(!(document.getElementById('edc'+edc).className == "disconnect"))
+        //             {
+        //             console.log('!!!!CHANGINGDISCONNECT!!!!!');
+        //             changeClassTerm(edc.toString());
+        //             }
+        // }
+        // else 
+        // if (health=="YES")
+        // {
+        //         console.log('HEALTHY EDC IS %s',edc);
+        //         if(!(document.getElementById('edc'+edc).className == "rectangle"))
+        //             {
+        //             console.log('!!!!CHANGINGTO NORMAL!!!!!');
+        //             changeClassNormal(edc.toString());
+        //             }
+                                
+        // }
+            
+
+    }
+
+
+
+// var myVar = setInterval(myTimer, 3000);
+
+// function myTimer() {
+//     console.log('!!!!RELOADING!!!!');
+   
+// }
+
+</script>
+
+
+<script type="text/javascript"> 
+    function update(data) { 
+
+
+      //  console.log('!!!!EXECUTING DISCONNECT FUNCTION!!!!');
+      b=data.split("#");
+      edc=b[1];
+      rectifier=b[2];
+      normal=b[3];
+      alternate=b[4];
+      trip=b[5];
+      console.log('EDC=+='+b[1]);
+      
+
+        if (rectifier=="0") rectifierText="TRIPPED"; else if (rectifier=="1") rectifierText="OK";
+        if (normal=="0") normalText="ONLOAD"; else if (normal=="1") normalText="OFF";
+        if (alternate=="0") alternateText="ONLOAD"; else if (alternate=="1") alternateText="OFF";
+        if (trip=="0") tripText="TRIPPED"; else if (trip=="1") tripText="OK";
+
+
+      if(rectifier=="0" || trip=="0" || (normal=="1" && alternate=="1"))
+      {
+        if (alarmPlayOnce==0) changeClassAlarm(edc.toString());  
+        //document.getElementById('edc'+edc).className = "alarm";
+        document.getElementById('edc'+edc).innerHTML="<b>EDC "+edc+"</b><br/>"+"<br/>RECTIFIER="+rectifierText+"<br/>NORMAL="+normalText+"<br/>ALTERNATE="+alternateText+"<br/>TRIP="+tripText;
+        alarmPlayOnce=1;
+      }
+      else 
+      {
+        document.getElementById('edc'+edc).className = "rectangle"; 
+        document.getElementById('edc'+edc).innerHTML="<b>EDC "+edc+"</b><br/>"+"<br/>RECTIFIER="+rectifierText+"<br/>NORMAL="+normalText+"<br/>ALTERNATE="+alternateText+"<br/>TRIP="+tripText;
+        alarmPlayOnce=0;
+      }
+
+      if(rectifier=="TERM"||normal=="TERM")
+      {
+      document.getElementById('edc'+edc).className = "disconnect"; 
+      document.getElementById('edc'+edc).innerHTML="EDC"+edc+" DISCONNECTED";
+      
+      }
+
+
+
+
+      //document.getElementById('edc'+edcId).className = "disconnect"; 
+      //document.getElementById('edc'+edcId).innerHTML="EDC"+edcId+" DISCONNECTED";
+    //    var button_class = document.getElementById('edc4').className; 
+      //  document.getElementById('myPara').innerHTML = "New class name: "  
+      ///  + button_class; 
+//document.getElementById("demo").innerHTML = "New class name:"+ button_class; 
+
+} 
+</script> 
+
+
+<script type="text/javascript"> 
+            function changeClassAlarm(edcId) { 
+                console.log('!!!!EXECUTING ALARM FUNCTION!!!!');
+                document.getElementById('edc'+edcId).className = "alarm"; 
+                document.getElementById('edc'+edcId).innerHTML="EDC"+edcId+" ALARM";
+            //    var button_class = document.getElementById('edc4').className; 
+              //  document.getElementById('myPara').innerHTML = "New class name: "  
+              ///  + button_class; 
+//document.getElementById("demo").innerHTML = "New class name:"+ button_class; 
+new Audio('alarm.mp3').play();
+} 
+</script> 
+
+<script type="text/javascript"> 
+    function changeClassTerm(edcId) { 
+        console.log('!!!!EXECUTING DISCONNECT FUNCTION!!!!');
+        document.getElementById('edc'+edcId).className = "disconnect"; 
+        document.getElementById('edc'+edcId).innerHTML="EDC"+edcId+" DISCONNECTED";
+    //    var button_class = document.getElementById('edc4').className; 
+      //  document.getElementById('myPara').innerHTML = "New class name: "  
+      ///  + button_class; 
+//document.getElementById("demo").innerHTML = "New class name:"+ button_class; 
+
+} 
+</script> 
+
+
+<script type="text/javascript"> 
+    function changeClassNormal(edcId) { 
+        console.log('!!!!EXECUTING NORMAL FUNCTION!!!!');
+        document.getElementById('edc'+edcId).className = "rectangle"; 
+        document.getElementById('edc'+edcId).innerHTML="EDC"+edcId+" NORMAL";
+    //    var button_class = document.getElementById('edc4').className; 
+      //  document.getElementById('myPara').innerHTML = "New class name: "  
+      ///  + button_class; 
+//document.getElementById("demo").innerHTML = "New class name:"+ button_class; 
+
+} 
+</script> 
+
+<script type="text/javascript"> 
+            function sendData() { 
+	         
+
+                ws.send('yeah');
+            } 
+</script> 
+
+
+
+
+
+
+
+<h1>
+    EDC RECTIFIER FAILURE ALARM PANEL
+</h1>
+<p id="demo">
+ 
+</p>
+
+
+<!-- <div id="edc1" class="disconnect">EDC1 DISCONNECTED</div>
+
+<div id="edc2" class="disconnect">EDC2 DISCONNECTED</div>
+
+<div id="edc3" class="disconnect">EDC3 DISCONNECTED</div>
+
+<div id="edc4" class="disconnect">EDC4A DISCONNECTED</div>
+
+<div id="edc5" class="disconnect">EDC4B DISCONNECTED</div> 
+
+<div id="edc6" class="disconnect">EDC5 DISCONNECTED</div> -->
+
+<div id="edc7" class="disconnect">EDC6A DISCONNECTED</div>
+
+<div id="edc8" class="disconnect">EDC6B DISCONNECTED</div>
+
+<div id="edc9" class="disconnect">EDC7A DISCONNECTED</div>
+
+<div id="edc10" class="disconnect">EDC7B DISCONNECTED</div>
+
+<!-- <div id="edc11" class="disconnect">EDC8 DISCONNECTED</div>
+
+<div id="edc12" class="disconnect">EDC9 DISCONNECTED</div>
+
+<div id="edc13" class="disconnect">EDC10 DISCONNECTED</div>
+
+<div id="edc14" class="disconnect">EDC11 DISCONNECTED</div> -->
+
+<a href="#"> text</a>
+
+        <button class="default" onclick="sendData()" 
+                    id="myButton">Click Here!</button><br> 
+        <p id="myPara">Old class name: default</p> 
+
+
+
+
+</body>
+</html> 
+
